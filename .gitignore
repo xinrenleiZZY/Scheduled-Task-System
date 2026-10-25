@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+data/
+*.log
+
+frontend/node_modules/
+frontend/dist/
+backend/static/
+
+# Python 离线依赖包（体积大，不进仓库）
+wheels/
+
+.idea/
+.vscode/

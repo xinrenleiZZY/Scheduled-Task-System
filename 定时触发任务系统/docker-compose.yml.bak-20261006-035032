@@ -1,0 +1,51 @@
+name: hzx-scheduler
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: hzx-scheduler-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hzx
+      POSTGRES_PASSWORD: hzx123456
+      POSTGRES_DB: hzx_scheduler
+      TZ: Asia/Shanghai
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hzx -d hzx_scheduler"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - hzx-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hzx-scheduler-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://hzx:hzx123456@db:5432/hzx_scheduler
+      DATA_DIR: /app/data
+      TZ: Asia/Shanghai
+    ports:
+      - "6100:6100"
+    volumes:
+      - appdata:/app/data
+    networks:
+      - hzx-net
+
+volumes:
+  pgdata:
+  appdata:
+
+networks:
+  hzx-net:
+    driver: bridge
